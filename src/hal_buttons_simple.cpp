@@ -4,9 +4,6 @@
 #include "event_bus.h"           // eb_push(...)
 #include "config.h"              // BTN_SELECT/BTN_DOWN/BTN_UP/BTN_LIVE/BTN_BACK
 
-#ifndef LED_BUILTIN
-#define LED_BUILTIN 13
-#endif
 
 // --------- Default pins if not overridden in config.h ----------
 #ifndef BTN_SELECT
@@ -94,9 +91,7 @@ void hal_buttons_poll() {
       b.tLast = now;
       b.last  = v;
 
-      // Blink LED while any key is held
-      // if (v == LOW) digitalWrite(LED_BUILTIN, HIGH);
-      //else          digitalWrite(LED_BUILTIN, LOW);
+      
 
       Serial.print("EDGE "); Serial.print(b.name);
       Serial.println(v == LOW ? " DOWN" : " UP");
