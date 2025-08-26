@@ -7,19 +7,24 @@
 
 // --------- Default pins if not overridden in config.h ----------
 #ifndef BTN_SELECT
-#define BTN_SELECT 3
+#error "BTN_SELECT not defined. Did you include config_pins.h?"
+//#define BTN_SELECT 3
 #endif
 #ifndef BTN_DOWN
-#define BTN_DOWN 4
+#error "BTN_DOWN not defined. Did you include config_pins.h?"
+//#define BTN_DOWN 4
 #endif
 #ifndef BTN_UP
-#define BTN_UP 5
+#error "BTN_UP not defined. Did you include config_pins.h?"
+//#define BTN_UP 5
 #endif
 #ifndef BTN_LIVE
-#define BTN_LIVE 42
+#error "BTN_LIVE not defined. Did you include config_pins.h?"
+//#define BTN_LIVE 42
 #endif
 #ifndef BTN_BACK
-#define BTN_BACK 46
+#error "BTN_BACK not defined. Did you include config_pins.h?"
+//#define BTN_BACK 46
 #endif
 // ---------------------------------------------------------------
 
@@ -62,11 +67,11 @@ void hal_buttons_setup() {
   //digitalWrite(LED_BUILTIN, LOW);
 
   // Announce which pins we're watching
-  Serial.print("BTN_SELECT="); Serial.println(BTN_SELECT);
-  Serial.print("BTN_DOWN=");   Serial.println(BTN_DOWN);
-  Serial.print("BTN_UP=");     Serial.println(BTN_UP);
-  Serial.print("BTN_LIVE=");   Serial.println(BTN_LIVE);
-  Serial.print("BTN_BACK=");   Serial.println(BTN_BACK);
+  Serial.print F(("BTN_SELECT=")); Serial.println (BTN_SELECT);
+  Serial.print F(("BTN_DOWN="));   Serial.println(BTN_DOWN);
+  Serial.print F(("BTN_UP="));     Serial.println(BTN_UP);
+  Serial.print F(("BTN_LIVE="));   Serial.println(BTN_LIVE);
+  Serial.print F(("BTN_BACK="));   Serial.println(BTN_BACK);
 }
 
 void hal_buttons_poll() {
@@ -76,9 +81,9 @@ void hal_buttons_poll() {
   static unsigned long lastDump = 0;
   if (now - lastDump > 500) {
     lastDump = now;
-    Serial.print("RAW ");
+    Serial.print F(("RAW "));
     for (auto &b : btns) {
-      Serial.print(b.name); Serial.print("=");
+      Serial.print(b.name); Serial.print F(("="));
       Serial.print(digitalRead(b.pin) == LOW ? "L " : "H ");
     }
     Serial.println();
@@ -93,8 +98,8 @@ void hal_buttons_poll() {
 
       
 
-      Serial.print("EDGE "); Serial.print(b.name);
-      Serial.println(v == LOW ? " DOWN" : " UP");
+      Serial.println F(("EDGE ")); Serial.print(b.name);
+      Serial.println (v == LOW ? " DOWN" : " UP");
 
       pushFn(b.key, v == LOW);
     }

@@ -27,12 +27,16 @@ SRC_CLOCK = 5
 };
 
 
+
 struct Event {
-EventType type;
-EventSource src;
-uint16_t a; // payload (row, pot idx, etc.)
-uint16_t b; // payload (col, value, etc.)
+  uint8_t type, src, a, b;   // 4 bytes total
 };
+static_assert(sizeof(Event)==4, "Event padded!");  // catch padding early   
+// EventType type;
+// EventSource src;
+// uint8_t a; // payload (row, pot idx, etc.)
+// uint8_t b; // payload (col, value, etc.)
+//}
 
 
 // Push/pop (ring buffer). Use eb_pushFromISR in ISRs.

@@ -25,9 +25,9 @@ class ContextObject : public BaseObject {
 public:
   const char* parentName;
   const char** subcontextNames;
-  size_t subcontextCount;
+  uint8_t subcontextCount;
 
-  ContextObject(const char* name, const char* parent, const char** subs, size_t count)
+  ContextObject(const char* name, const char* parent, const char** subs, uint8_t count)
     : BaseObject(name), parentName(parent), subcontextNames(subs), subcontextCount(count) {}
 
   virtual void draw(void* gfx) {}       // Accepts U8G2* or similar
@@ -42,11 +42,11 @@ public:
 class MenuObject : public ContextObject {
 public:
   const char** items;
-  size_t itemCount;
-  size_t selectedIndex;
+  uint8_t itemCount;
+  uint8_t selectedIndex;
 
-  MenuObject(const char* name, const char* parent, const char** subs, size_t subCount,
-             const char** menuItems, size_t menuItemCount)
+  MenuObject(const char* name, const char* parent, const char** subs, uint8_t subCount,
+             const char** menuItems, uint8_t menuItemCount)
     : ContextObject(name, parent, subs, subCount),
       items(menuItems), itemCount(menuItemCount), selectedIndex(0) {}
 

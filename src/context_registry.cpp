@@ -6,7 +6,7 @@
 
 static const char* contextNames[MAX_CONTEXTS];
 static ContextObject* contextPointers[MAX_CONTEXTS];
-static size_t contextCount = 0;
+static uint8_t contextCount = 0;
 
 void registerContext(const char* name, ContextObject* ctx) {
   if (contextCount >= MAX_CONTEXTS) return; // silently ignore overflow
@@ -16,7 +16,7 @@ void registerContext(const char* name, ContextObject* ctx) {
 }
 
 ContextObject* getContextByName(const char* name) {
-  for (size_t i = 0; i < contextCount; ++i) {
+  for (uint8_t i = 0; i < contextCount; ++i) {
     if (strcmp(contextNames[i], name) == 0) {
       return contextPointers[i];
     }
@@ -24,11 +24,11 @@ ContextObject* getContextByName(const char* name) {
   return nullptr;
 }
 
-size_t getRegisteredContextCount() {
+uint8_t getRegisteredContextCount() {
   return contextCount;
 }
 
-ContextObject* getContextByIndex(size_t index) {
+ContextObject* getContextByIndex(uint8_t index) {
   if (index >= contextCount) return nullptr;
   return contextPointers[index];
 }

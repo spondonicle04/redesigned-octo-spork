@@ -2,6 +2,7 @@
 #include "config_pins.h"
 #include "config_features.h"
 #include "board_profile_MEGA2560.h"
+#include "config_checks.h"
 
 // // === config.h ===
 // // Master pin and hardware definitions for the Super 707 Sequencer

@@ -32,21 +32,21 @@ inline void drawTitleWithLines(U8G2* u8, const char* title, int y = 12, int gapP
 inline void drawMenuPaged(U8G2* u8,
                           const char* title,
                           const char* const* items,
-                          size_t count,
-                          size_t selected,
+                          uint8_t count,
+                          uint8_t selected,
                           uint8_t rows = 4)
 {
   if (!u8) return;
   if (rows < 1) rows = 1;
 
   // Compute start index so the selected row is roughly centered
-  size_t maxStart = (count > rows) ? (count - rows) : 0;
-  size_t start = 0;
+  uint8_t maxStart = (count > rows) ? (count - rows) : 0;
+  uint8_t start = 0;
   if (count > rows) {
     int center = (int)selected - (int)rows / 2;
     if (center < 0) center = 0;
-    if ((size_t)center > maxStart) center = (int)maxStart;
-    start = (size_t)center;
+    if ((uint8_t)center > maxStart) center = (int)maxStart;
+    start = (uint8_t)center;
   }
 
   u8->firstPage();
@@ -59,8 +59,8 @@ inline void drawMenuPaged(U8G2* u8,
     const int startY = 26;   // first row baseline
     const int lineH  = 12;   // row spacing
 
-    for (size_t row = 0; row < rows && (start + row) < count; ++row) {
-      size_t i = start + row;
+    for (uint8_t row = 0; row < rows && (start + row) < count; ++row) {
+      uint8_t i = start + row;
       int y = startY + row * lineH;
 
       if (i == selected) {

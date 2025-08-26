@@ -2,7 +2,7 @@
 #include "event_bus.h"
 #include <Arduino.h>
 
-static const uint8_t Q_LEN = 64;            // must be power of two
+static const uint8_t Q_LEN = 32;            // must be power of two
 static volatile uint8_t headIdx = 0;
 static volatile uint8_t tailIdx = 0;
 static Event q[Q_LEN];

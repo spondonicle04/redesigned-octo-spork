@@ -72,3 +72,10 @@
 
 // --- MCP23017 for Button Matrix ---
 #define I2C_ADDR_MCP 0x20
+
+// --- Temp buttons for setup/test
+ #define BTN_LIVE    42
+ #define BTN_DOWN    43
+ #define BTN_UP      44
+ #define BTN_SELECT  45
+ #define BTN_BACK    46

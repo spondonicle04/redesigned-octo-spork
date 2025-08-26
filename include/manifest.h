@@ -36,7 +36,7 @@
 // Properties:
 //   - const char* parentName
 //   - const char** subcontextNames
-//   - size_t subcontextCount
+//   - uint8_t subcontextCount
 //   - bool backCapable
 //   - draw(), update(), handleInput(), output()
 
@@ -48,8 +48,8 @@
 */
 // Properties:
 //   - const char** items
-//   - size_t itemCount
-//   - size_t selectedIndex
+//   - uint8_t itemCount
+//   - uint8_t selectedIndex
 //   - bool* toggleStates
 //   - onSelect(), onToggle()
 

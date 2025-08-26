@@ -16,9 +16,9 @@ void registerContext(const char* name, ContextObject* ctx);
 ContextObject* getContextByName(const char* name);
 
 // Retrieves the number of registered contexts
-size_t getRegisteredContextCount();
+uint8_t getRegisteredContextCount();
 
 // Retrieves a context by index (for debug/UI iteration)
-ContextObject* getContextByIndex(size_t index);
+ContextObject* getContextByIndex(uint8_t index);
 
 #endif // CONTEXT_REGISTRY_H

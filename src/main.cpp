@@ -20,7 +20,8 @@ U8G2_ST7920_128X64_1_SW_SPI u8g2(U8G2_R0, LCD_CLK, LCD_MOSI, LCD_CS);
 void setup() {
   Serial.begin(115200);
   hal_buttons_setup();
-  Serial.println("Booting Context Engine...");
+  Serial.println(F("Booting Context Engine..."));
+  //Serial.print(F("free=")); Serial.println(freeRam());
   // Init display
   u8g2.begin();
 
