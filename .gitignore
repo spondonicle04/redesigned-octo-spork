@@ -3,3 +3,27 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+# Build artifacts
+*.hex
+*.elf
+*.bin
+*.map
+*.d
+*.o
+*.a
+
+# Arduino/PIO build dirs
+.pio/
+build*/
+**/build*/
+
+# VS Code fluff (keep the useful project JSONs)
+.vscode/.browse*/
+.vscode/*.db
+!.vscode/arduino.json
+!.vscode/c_cpp_properties.json
+!.vscode/settings.json
+
+# OS cruft
+.DS_Store
+Thumbs.db
