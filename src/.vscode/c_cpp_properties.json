@@ -1,0 +1,45 @@
+{
+  "version": 4,
+  "configurations": [
+    {
+      "name": "Arduino-AVR",
+      "intelliSenseMode": "windows-gcc-x64",
+      "compilerPath": "C:/Users/spond/AppData/Local/Arduino15/packages/arduino/tools/avr-gcc/7.3.0-atmel3.6.1-arduino7/bin/avr-g++.exe",
+      "compilerArgs": ["-mmcu=atmega2560"],
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "defines": [
+        "F_CPU=16000000L",
+        "ARDUINO=10819",
+        "ARDUINO_ARCH_AVR",
+        "ARDUINO_AVR_MEGA2560",
+        "__AVR__"
+      ],
+      "includePath": [
+        "${workspaceFolder}",
+        "C:/Users/spond/AppData/Local/Arduino15/packages/arduino/hardware/avr/**",
+        "C:/Users/spond/AppData/Local/Arduino15/packages/arduino/tools/avr-gcc/**",
+        "C:/Users/spond/OneDrive/Documents/Arduino/libraries/**",
+
+        // Your custom lib location(s):
+        "C:/arduino proj/libraries/**",
+        "C:/arduino proj/libraries/U8glib/src",   // add this if U8g2 sits here
+        "C:/Users/spond/AppData/Local/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/"
+        // Optional fallback if you also have the classic IDE installed:
+        //,"C:/Program Files (x86)/Arduino/libraries/**" NOTHING HERE!
+      ],
+      "forcedInclude": [
+        "C:/Users/spond/AppData/Local/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino/Arduino.h"
+      ],
+      "browse": {
+        "path": [
+          "${workspaceFolder}",
+          "C:/arduino proj",
+          "C:/Users/spond/OneDrive/Documents/Arduino/libraries",
+          "C:/Users/spond/AppData/Local/Arduino15/packages/arduino/hardware/avr/1.8.6/cores/arduino"
+        ],
+        "limitSymbolsToIncludedHeaders": true
+      }
+    }
+  ]
+}

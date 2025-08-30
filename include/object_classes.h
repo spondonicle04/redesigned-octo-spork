@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <limits.h>  // for UINTPTR_MAX in guarded asserts
 
 //-----------------------------------
 // 🧱 Base Object
@@ -24,16 +25,16 @@ public:
 class ContextObject : public BaseObject {
 public:
   const char* parentName;
-  const char** subcontextNames;
+  const char* const* subcontextNames;  // pointer to table of const char*
   uint8_t subcontextCount;
 
-  ContextObject(const char* name, const char* parent, const char** subs, uint8_t count)
+  ContextObject(const char* name, const char* parent, const char* const* subs, uint8_t count)
     : BaseObject(name), parentName(parent), subcontextNames(subs), subcontextCount(count) {}
 
-  virtual void draw(void* gfx) {}       // Accepts U8G2* or similar
-  virtual void handleInput(int input) {}
-  virtual void update(void* gfx) {}
-  virtual void output(int signal) {}
+  virtual void draw(void* /*gfx*/) {}       // Accepts U8G2* or similar
+  virtual void handleInput(int /*input*/) {}
+  virtual void update(void* /*gfx*/) {}
+  virtual void output(int /*signal*/) {}
 };
 
 //-----------------------------------
@@ -41,17 +42,32 @@ public:
 //-----------------------------------
 class MenuObject : public ContextObject {
 public:
-  const char** items;
+  const char* const* items;  // pointer to table of const char*
   uint8_t itemCount;
   uint8_t selectedIndex;
 
-  MenuObject(const char* name, const char* parent, const char** subs, uint8_t subCount,
-             const char** menuItems, uint8_t menuItemCount)
+  MenuObject(const char* name, const char* parent, const char* const* subs, uint8_t subCount,
+             const char* const* menuItems, uint8_t menuItemCount)
     : ContextObject(name, parent, subs, subCount),
       items(menuItems), itemCount(menuItemCount), selectedIndex(0) {}
 
   virtual void select() {} // override if item is chosen
 };
+
+// ===== Compile-time sanity checks (only on real AVR C++ builds, not IntelliSense) =====
+#if defined(__cplusplus) && defined(__AVR__) && !defined(__INTELLISENSE__)
+
+// On AVR, pointers are 16-bit; gate on uintptr_t to avoid host/editor models.
+#if (UINTPTR_MAX == 0xFFFFu)
+static_assert(sizeof(const char*) == 2, "AVR: expected 16-bit pointers");
+#endif
+
+// Sizes are conservative to avoid flapping if base layout shifts.
+// (AVR: vptr ~2, each pointer 2, small fields 1.)
+static_assert(sizeof(ContextObject) <= 24, "ContextObject grew unexpectedly");
+static_assert(sizeof(MenuObject)    <= 28, "MenuObject grew unexpectedly");
+
+#endif // guarded asserts
 
 //-----------------------------------
 // 🎛️ Input Object
@@ -75,7 +91,7 @@ public:
   OutputObject(const char* name, int pinNumber)
     : BaseObject(name), pin(pinNumber) {}
 
-  virtual void set(bool state) {}  // Turn on/off, send MIDI, etc.
+  virtual void set(bool /*state*/) {}  // Turn on/off, send MIDI, etc.
 };
 
 //-----------------------------------
@@ -104,7 +120,7 @@ public:
 class RegistryObject : public BaseObject {
 public:
   RegistryObject() : BaseObject("Registry") {}
-  virtual void registerObject(BaseObject* obj) {}
+  virtual void registerObject(BaseObject* /*obj*/) {}
 };
 
 #endif // OBJECT_CLASSES_H

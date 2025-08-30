@@ -17,8 +17,10 @@ static void handleFnKey(uint8_t fn) {
     case FN_DOWN:   deliverToContext(IN_DOWN);   break;
     // case FN_LEFT:   deliverToContext(IN_LEFT);   break;
     // case FN_RIGHT:  deliverToContext(IN_RIGHT);  break;
-    case FN_BACK:   if (!goBack()) setContextByName("MAIN_MENU"); break; // or "MAIN"
-    case FN_LIVE:   setContextByName("LIVE_MODE"); break;
+    case FN_BACK:   if (!goBack()) setContextByName("MAIN_MENU");
+    break; // or "MAIN"
+    case FN_LIVE:   setContextByName("LIVE_MODE");
+    break;
     default: break;
   }
 }
