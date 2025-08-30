@@ -29,8 +29,8 @@ void LiveModeContext::draw(void* gfx) {
 
   u8->firstPage();
   do {
-    u8->setFont(u8g2_font_6x13_tf);
-    u8->drawStr(2, 12, "LIVE");
+    //u8->setFont(u8g2_font_6x13_tf);
+    //u8->drawStr(2, 12, "LIVE");
 
     for (uint8_t r = 0; r < ROWS; ++r) {
       for (uint8_t c = 0; c < COLS; ++c) {
