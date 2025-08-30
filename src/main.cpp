@@ -34,7 +34,7 @@ void setup() {
   // Start in LIVE mode (grid) instead of BOOT
   setContextByName("LIVE_MODE");
 
-  Serial.println("Setup complete.");
+  Serial.println F(("Setup complete."));
 }
 
 

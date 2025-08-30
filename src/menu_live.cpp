@@ -22,10 +22,10 @@ void LiveModeContext::draw(void* gfx) {
   if (!u8) return;
 
   // Simple proof-of-life: title + 8×8 grid
-  const uint8_t cell = 7;      // cell size in pixels
-  const uint8_t pad  = 2;      // spacing between cells
-  const uint8_t offX = 0;      // top-left X
-  const uint8_t offY = 14;     // top-left Y
+  const uint8_t cell = 5;      // cell size in pixels
+  const uint8_t pad  = 1;      // spacing between cells
+  const uint8_t offX = 10;      // top-left X
+  const uint8_t offY = 2;     // top-left Y
 
   u8->firstPage();
   do {

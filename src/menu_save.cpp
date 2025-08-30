@@ -21,10 +21,13 @@ static const unsigned SAVE_MENU_TRANSITION_COUNT =
 const char SV_ITEM_0[] PROGMEM = "Save Pattern";
 const char SV_ITEM_1[] PROGMEM = "Save All";
 const char SV_ITEM_2[] PROGMEM = "Back";
+const char TITLE_SAVE[] PROGMEM = "Save Menu";
 
 // Pointer table also in PROGMEM
 const char* const MENU_SAVE_ITEMS[] PROGMEM = {
-  SV_ITEM_0, SV_ITEM_1, SV_ITEM_2
+  SV_ITEM_0,
+  SV_ITEM_1,
+  SV_ITEM_2
 };
 const uint8_t MENU_SAVE_COUNT = 3;
 
@@ -35,6 +38,10 @@ SaveMenuContext::SaveMenuContext()
 
 void SaveMenuContext::draw(void* gfx) {
   U8G2* u8 = (U8G2*)gfx;
+   char titleBuf[24];
+  strncpy_P(titleBuf, TITLE_SAVE, sizeof(titleBuf)-1);
+  titleBuf[sizeof(titleBuf)-1] = '\0';
+
   // PROGMEM-aware renderer
   drawMenuPagedP(u8, "Save Menu", items, itemCount, selectedIndex, 4);
 }

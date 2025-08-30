@@ -19,6 +19,7 @@ static const unsigned PATTERN_MENU_TRANSITION_COUNT =
 const char P_ITEM_0[] PROGMEM = "Pattern 1";
 const char P_ITEM_1[] PROGMEM = "Pattern 2";
 const char P_ITEM_2[] PROGMEM = "Pattern 3";
+const char TITLE_PATTERN[] PROGMEM = "Pattern Menu";
 
 // Pointer table also in PROGMEM
 const char* const MENU_PATTERN_ITEMS[] PROGMEM = {
@@ -34,6 +35,10 @@ PatternMenuContext::PatternMenuContext()
 
 void PatternMenuContext::draw(void* gfx) {
   U8G2* u8 = (U8G2*)gfx;
+  char titleBuf[24];
+  strncpy_P(titleBuf, TITLE_PATTERN, sizeof(titleBuf)-1);
+  titleBuf[sizeof(titleBuf)-1] = '\0';
+
   // PROGMEM-aware renderer
   drawMenuPagedP(u8, "Pattern Menu", items, itemCount, selectedIndex, 4);
 }

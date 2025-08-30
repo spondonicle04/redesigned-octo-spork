@@ -15,8 +15,8 @@
 // We encode selectedIndex as code 100 + index.
 static const Transition MAIN_MENU_TRANSITIONS[] = {
   {"MAIN_MENU", 100, "PATTERN_MENU"},
-  {"MAIN_MENU", 101, "SETTINGS"},
-  {"MAIN_MENU", 102, "LIVE_MODE"},
+  {"MAIN_MENU", 101, "LIVE_MODE"},
+  {"MAIN_MENU", 102, "SETTINGS"},
   {"MAIN_MENU", 103, "SAVE_MENU"},
   {"MAIN_MENU", 104, "DEBUG"},
 };
@@ -29,10 +29,14 @@ const char M_MAIN_1[] PROGMEM = "Live Menu";
 const char M_MAIN_2[] PROGMEM = "Settings";
 const char M_MAIN_3[] PROGMEM = "Save Menu";
 const char M_MAIN_4[] PROGMEM = "Debug Menu";
-
+const char TITLE_MAIN[] PROGMEM = "Main Menu";
 // Pointer table also lives in PROGMEM
 const char* const MENU_MAIN_ITEMS[] PROGMEM = {
-  M_MAIN_0, M_MAIN_1, M_MAIN_2, M_MAIN_3, M_MAIN_4
+  M_MAIN_0,
+  M_MAIN_1,
+  M_MAIN_2,
+  M_MAIN_3,
+  M_MAIN_4
 };
 const uint8_t MENU_MAIN_COUNT = 5;
 
@@ -61,7 +65,9 @@ void MainMenuContext::draw(void* gfx) {
     if (center > maxStart) center = maxStart;
     start = center;
   }
-
+   char titleBuf[24];
+    strncpy_P(titleBuf, TITLE_MAIN, sizeof(titleBuf)-1);
+    titleBuf[sizeof(titleBuf)-1] = '\0';
   u8->firstPage();
   do {
     // Title (centered, with side lines)
@@ -113,8 +119,8 @@ void MainMenuContext::handleInput(int input) {
   if (input == 1) { // enter/select
     switch (selectedIndex) {
       case 0: setContextByName("PATTERN_MENU"); break;
-      case 1: setContextByName("SETTINGS");     break;
-      case 2: setContextByName("LIVE_MODE");    break;
+      case 1: setContextByName("LIVE_MODE");    break;
+      case 2: setContextByName("SETTINGS");     break;
       case 3: setContextByName("SAVE_MENU");    break;
       case 4: setContextByName("DEBUG");        break;
     }

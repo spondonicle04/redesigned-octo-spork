@@ -21,10 +21,13 @@ static const unsigned DEBUG_TRANSITION_COUNT =
 const char D_ITEM_0[] PROGMEM = "System Info";
 const char D_ITEM_1[] PROGMEM = "Test Beep";
 const char D_ITEM_2[] PROGMEM = "Back";
+const char TITLE_DEBUG[] PROGMEM = "Debug";
 
 // Pointer table also in PROGMEM
 const char* const MENU_DEBUG_ITEMS[] PROGMEM = {
-  D_ITEM_0, D_ITEM_1, D_ITEM_2
+  D_ITEM_0,
+  D_ITEM_1,
+  D_ITEM_2
 };
 const uint8_t MENU_DEBUG_COUNT = 3;
 
@@ -35,6 +38,10 @@ DebugMenuContext::DebugMenuContext()
 
 void DebugMenuContext::draw(void* gfx) {
   U8G2* u8 = (U8G2*)gfx;
+   char titleBuf[24];
+  strncpy_P(titleBuf, TITLE_DEBUG, sizeof(titleBuf)-1);
+  titleBuf[sizeof(titleBuf)-1] = '\0';
+
   // PROGMEM-aware renderer
   drawMenuPagedP(u8, "Debug", items, itemCount, selectedIndex, 4);
 }

@@ -10,6 +10,29 @@ inline void drawProgmemStr(U8G2* u8, int x, int y, const char* p) {
   buf[sizeof(buf)-1] = '\0';
   u8->drawStr(x, y, buf);
 }
+// PROGMEM-aware centered title + lines
+inline void drawTitleWithLines_P(U8G2* u8, const char* titleP, int y = 12, int gapPx = 6) {
+  if (!u8 || !titleP) return;
+
+  // copy to a small stack buf once
+  char buf[24];                      // adjust if you have longer titles
+  strncpy_P(buf, titleP, sizeof(buf)-1);
+  buf[sizeof(buf)-1] = '\0';
+
+  u8->setFont(u8g2_font_6x13_tf);
+  const int W   = u8->getDisplayWidth();
+  const int txt = u8->getUTF8Width(buf);
+  int x = (W - txt) / 2; if (x < 0) x = 0;
+
+  u8->drawStr(x, y, buf);
+
+  const int lineY   = y - 5;
+  const int leftEnd = x - gapPx;
+  const int rightBeg= x + txt + gapPx;
+
+  if (leftEnd > 0)  u8->drawHLine(0,        lineY, leftEnd);
+  if (rightBeg < W) u8->drawHLine(rightBeg, lineY, W - rightBeg);
+}
 
 // Read a char* from a PROGMEM table of pointers
 inline const char* readPtrP(const char* const* tableP, uint8_t index) {
@@ -40,16 +63,13 @@ inline void drawTitleWithLines(U8G2* u8, const char* title, int y = 12, int gapP
   if (leftEnd > 0)  u8->drawHLine(0,        lineY, leftEnd);
   if (rightBeg < W) u8->drawHLine(rightBeg, lineY, W - rightBeg);
 }
-
-/* -------------------------
-   RAM-backed items version
-   ------------------------- */
-inline void drawMenuPagedRam(U8G2* u8,
-                             const char* title,
-                             const char* const* items,
-                             uint8_t count,
-                             uint8_t selected,
-                             uint8_t rows = 4)
+// PROGMEM title + PROGMEM items
+inline void drawMenuPagedP_TitleP(U8G2* u8,
+                                  const char* titleP,           // title in PROGMEM
+                                  const char* const* itemsP,    // items table in PROGMEM
+                                  uint8_t count,
+                                  uint8_t selected,
+                                  uint8_t rows = 4)
 {
   if (!u8) return;
   if (rows < 1) rows = 1;
@@ -65,7 +85,7 @@ inline void drawMenuPagedRam(U8G2* u8,
 
   u8->firstPage();
   do {
-    if (title) drawTitleWithLines(u8, title, /*y=*/12, /*gapPx=*/6);
+    if (titleP) drawTitleWithLines_P(u8, titleP, /*y=*/12, /*gapPx=*/6);
 
     u8->setFont(u8g2_font_6x10_tf);
     const int startY = 26;
@@ -75,13 +95,15 @@ inline void drawMenuPagedRam(U8G2* u8,
       uint8_t i = (uint8_t)(start + row);
       int y = startY + row * lineH;
 
+      const char* p = readPtrP(itemsP, i);
+
       if (i == selected) {
         u8->drawBox(0, y - 10, 128, 12);
         u8->setDrawColor(0);
-        u8->drawStr(4, y, items[i]);
+        drawProgmemStr(u8, 4, y, p);
         u8->setDrawColor(1);
       } else {
-        u8->drawStr(4, y, items[i]);
+        drawProgmemStr(u8, 4, y, p);
       }
     }
 
@@ -98,6 +120,64 @@ inline void drawMenuPagedRam(U8G2* u8,
     }
   } while (u8->nextPage());
 }
+
+// /* -------------------------
+//    RAM-backed items version
+//    ------------------------- */
+// inline void drawMenuPagedRam(U8G2* u8,
+//                              const char* title,
+//                              const char* const* items,
+//                              uint8_t count,
+//                              uint8_t selected,
+//                              uint8_t rows = 4)
+// {
+//   if (!u8) return;
+//   if (rows < 1) rows = 1;
+
+//   uint8_t maxStart = (count > rows) ? (count - rows) : 0;
+//   uint8_t start = 0;
+//   if (count > rows) {
+//     int center = (int)selected - (int)rows / 2;
+//     if (center < 0) center = 0;
+//     if ((uint8_t)center > maxStart) center = (int)maxStart;
+//     start = (uint8_t)center;
+//   }
+
+//   u8->firstPage();
+//   do {
+//     if (title) drawTitleWithLines(u8, title, /*y=*/12, /*gapPx=*/6);
+
+//     u8->setFont(u8g2_font_6x10_tf);
+//     const int startY = 26;
+//     const int lineH  = 12;
+
+//     for (uint8_t row = 0; row < rows && (start + row) < count; ++row) {
+//       uint8_t i = (uint8_t)(start + row);
+//       int y = startY + row * lineH;
+
+//       if (i == selected) {
+//         u8->drawBox(0, y - 10, 128, 12);
+//         u8->setDrawColor(0);
+//         u8->drawStr(4, y, items[i]);
+//         u8->setDrawColor(1);
+//       } else {
+//         u8->drawStr(4, y, items[i]);
+//       }
+//     }
+
+//     if (count > rows) {
+//       const int barX = 125, barTop = 16, barH = 48;
+//       u8->drawVLine(barX, barTop, barH);
+
+//       int knobH = (rows * barH) / (int)count;
+//       if (knobH < 6) knobH = 6;
+
+//       int maxStartPx = (int)(maxStart ? maxStart : 1);
+//       int knobY = barTop + (int)((start * (barH - knobH)) / (float)maxStartPx);
+//       u8->drawBox(barX - 1, knobY, 3, knobH);
+//     }
+//   } while (u8->nextPage());
+// }
 
 /* --------------------------------
    PROGMEM-backed items version (✨)
@@ -167,5 +247,5 @@ inline void drawMenuPaged(U8G2* u8,
                           uint8_t selected,
                           uint8_t rows = 4)
 {
-  drawMenuPagedRam(u8, title, items, count, selected, rows);
+  drawMenuPagedP(u8, title, items, count, selected, rows);
 }

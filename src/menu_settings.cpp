@@ -15,6 +15,7 @@ const char S_ITEM_0[] PROGMEM = "Audio Settings";
 const char S_ITEM_1[] PROGMEM = "Display Options";
 const char S_ITEM_2[] PROGMEM = "MIDI Config";
 const char S_ITEM_3[] PROGMEM = "Back";
+const char TITLE_SETTINGS[] PROGMEM = "Settings";
 
 // Pointer table also in PROGMEM
 const char* const MENU_SETTINGS_ITEMS[] PROGMEM = {
@@ -29,6 +30,9 @@ SettingsMenuContext::SettingsMenuContext()
 
 void SettingsMenuContext::draw(void* gfx) {
   U8G2* u8 = (U8G2*)gfx;
+  char titleBuf[24];
+  strncpy_P(titleBuf, TITLE_SETTINGS, sizeof(titleBuf)-1);
+  titleBuf[sizeof(titleBuf)-1] = '\0'; 
   // PROGMEM-aware renderer
   drawMenuPagedP(u8, "Settings", items, itemCount, selectedIndex, 4);
 }
