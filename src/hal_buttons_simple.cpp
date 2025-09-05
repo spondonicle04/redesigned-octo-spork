@@ -3,7 +3,7 @@
 #include "hal_buttons_simple.h"  // provides FnKey enum + prototypes
 #include "event_bus.h"           // eb_push(...)
 #include "config.h"              // BTN_SELECT/BTN_DOWN/BTN_UP/BTN_LIVE/BTN_BACK
-
+#include "debug.h"
 
 // --------- Default pins if not overridden in config.h ----------
 #ifndef BTN_SELECT
@@ -63,30 +63,28 @@ void hal_buttons_setup() {
   pinMode(BTN_LIVE,   INPUT_PULLUP);
   pinMode(BTN_BACK,   INPUT_PULLUP);
 
-  //pinMode(LED_BUILTIN, OUTPUT);
-  //digitalWrite(LED_BUILTIN, LOW);
-
   // Announce which pins we're watching
-  Serial.print F(("BTN_SELECT=")); Serial.println (BTN_SELECT);
-  Serial.print F(("BTN_DOWN="));   Serial.println(BTN_DOWN);
-  Serial.print F(("BTN_UP="));     Serial.println(BTN_UP);
-  Serial.print F(("BTN_LIVE="));   Serial.println(BTN_LIVE);
-  Serial.print F(("BTN_BACK="));   Serial.println(BTN_BACK);
+  DL("BTN_SELECT="); DPRINTLN(BTN_SELECT);
+  DL("BTN_DOWN=");   DPRINTLN(BTN_DOWN);
+  DL("BTN_UP=");     DPRINTLN(BTN_UP);
+  DL("BTN_LIVE=");   DPRINTLN(BTN_LIVE);
+  DL("BTN_BACK=");   DPRINTLN(BTN_BACK);
+
 }
 
 void hal_buttons_poll() {
   const unsigned long now = millis();
 
   // Raw level dump every ~500 ms (helps when probing with a GND wire)
-  static unsigned long lastDump = 0;
+ static unsigned long lastDump = 0;
   if (now - lastDump > 500) {
     lastDump = now;
-    Serial.print F(("RAW "));
+    DL("RAW ");
     for (auto &b : btns) {
-      Serial.print(b.name); Serial.print F(("="));
-      Serial.print(digitalRead(b.pin) == LOW ? "L " : "H ");
+      DPRINT(b.name); DL("="); 
+      DPRINT(digitalRead(b.pin) == LOW ? "L " : "H ");  // runtime string → no F()
     }
-    Serial.println();
+    DPRINTLN(""); // newline
   }
 
   // Debounce + edge detection (25 ms)
@@ -98,9 +96,9 @@ void hal_buttons_poll() {
 
       
 
-      Serial.println F(("EDGE ")); Serial.print(b.name);
-      Serial.println (v == LOW ? " DOWN" : " UP");
-
+       DL("EDGE "); DPRINT(b.name);
+      DPRINTLN(v == LOW ? " DOWN" : " UP");
+      
       pushFn(b.key, v == LOW);
     }
   }

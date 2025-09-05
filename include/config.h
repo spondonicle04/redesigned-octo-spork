@@ -24,3 +24,7 @@
 #define KEY_SELECT IN_SELECT
 #define KEY_DOWN   IN_DOWN
 #define KEY_UP     IN_UP
+
+#define DEBUG_SERIAL 1   // set to 0 to strip all debug I/O
+#define DEBUG_BAUD   115200
+
