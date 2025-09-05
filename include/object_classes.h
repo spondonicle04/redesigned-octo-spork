@@ -5,10 +5,18 @@
 #ifndef OBJECT_CLASSES_H
 #define OBJECT_CLASSES_H
 
+#include "config.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <limits.h>  // for UINTPTR_MAX in guarded asserts
 #include <avr/pgmspace.h> // for PROGMEM reading
+#include "input_codes.h"
+
+
+
+// external navigation helpers – implemented elsewhere
+extern bool goBack();
+extern bool setContextByName(const char* name);
 
 //-----------------------------------
 // 🧱 Base Object
@@ -19,9 +27,7 @@ public:
   BaseObject(const char* n) : name(n) {}
   virtual ~BaseObject() {}
 };
-// external navigation helpers – implemented elsewhere
-  extern bool goBack();
-  extern void setContextByName(const char* name);
+
 
 //-----------------------------------
 // 🖥️ Context Object
@@ -40,23 +46,65 @@ public:
   virtual void update(void* /*gfx*/) {}
   virtual void output(int /*signal*/) {}
 };
-
-//-----------------------------------
-// 📜 Menu Object (a type of Context)
-//-----------------------------------
 class MenuObject : public ContextObject {
 public:
-  const char* const* items;  // pointer to table of const char*
+  const char* const* items;   // pointer to label table (RAM or PROGMEM)
   uint8_t itemCount;
   uint8_t selectedIndex;
 
-  MenuObject(const char* name, const char* parent, const char* const* subs, uint8_t subCount,
-             const char* const* menuItems, uint8_t menuItemCount)
-    : ContextObject(name, parent, subs, subCount),
-      items(menuItems), itemCount(menuItemCount), selectedIndex(0) {}
+  // NEW: if false, default handler ignores select (menu can be view-only)
+  bool autoSelectEnabled;
 
-  virtual void select() {} // override if item is chosen
+  MenuObject(const char* name, const char* parent,
+             const char* const* subs, uint8_t subCount,
+             const char* const* menuItems, uint8_t menuItemCount,
+             bool autoSelect = true)
+    : ContextObject(name, parent, subs, subCount),
+      items(menuItems), itemCount(menuItemCount), selectedIndex(0),
+      autoSelectEnabled(autoSelect) {}
+
+  // Hook: override in a specific menu if you want custom action on select.
+  // Return true if you handled it (to suppress default behavior).
+  virtual bool onSelect(uint8_t /*index*/) { return false; }
+
+  // Generic navigation + select using subcontextNames (subs)
+  virtual void handleInput(int input) override {
+    if (input == KEY_SELECT) {
+      if (onSelect(selectedIndex)) return;           // custom behavior took it
+      if (!autoSelectEnabled) return;                // menu opted out
+      if (subcontextNames && selectedIndex < subcontextCount) {
+        const char* dest =
+          (const char*)pgm_read_ptr(&subcontextNames[selectedIndex]); // PROGMEM-safe
+        if (dest && dest[0]) setContextByName(dest);
+      }
+    } else if (input == KEY_DOWN) {
+      if (itemCount) selectedIndex = (uint8_t)((selectedIndex + 1) % itemCount);
+    } else if (input == KEY_UP) {
+      if (itemCount) selectedIndex = (uint8_t)((selectedIndex + itemCount - 1) % itemCount);
+    } else if (input == KEY_BACK) {
+      (void)goBack();
+    }
+  }
+
+  virtual void select() {} // legacy hook (kept for compatibility)
 };
+
+// //-----------------------------------
+// // 📜 Menu Object (a type of Context)
+// //-----------------------------------
+// class MenuObject : public ContextObject {
+// public:
+//   const char* const* items;  // pointer to table of const char*
+//   uint8_t itemCount;
+//   uint8_t selectedIndex;
+
+//   MenuObject(const char* name, const char* parent, const char* const* subs, uint8_t subCount,
+//              const char* const* menuItems, uint8_t menuItemCount)
+//     : ContextObject(name, parent, subs, subCount),
+//       items(menuItems), itemCount(menuItemCount), selectedIndex(0) {}
+
+//   virtual void select() {} // override if item is chosen
+// };
 
 // ===== Compile-time sanity checks (only on real AVR C++ builds, not IntelliSense) =====
 #if defined(__cplusplus) && defined(__AVR__) && !defined(__INTELLISENSE__)

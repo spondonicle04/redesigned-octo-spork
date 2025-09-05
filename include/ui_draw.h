@@ -64,16 +64,18 @@ inline void drawTitleWithLines(U8G2* u8, const char* title, int y = 12, int gapP
   if (rightBeg < W) u8->drawHLine(rightBeg, lineY, W - rightBeg);
 }
 // PROGMEM title + PROGMEM items
-inline void drawMenuPagedP_TitleP(U8G2* u8,
-                                  const char* titleP,           // title in PROGMEM
-                                  const char* const* itemsP,    // items table in PROGMEM
-                                  uint8_t count,
-                                  uint8_t selected,
-                                  uint8_t rows = 4)
+// Paged menu renderer with centered title + side flourishes (RAM items)
+inline void drawMenuPaged(U8G2* u8,
+                          const char* title,
+                          const char* const* items,
+                          uint8_t count,
+                          uint8_t selected,
+                          uint8_t rows = 4)
 {
   if (!u8) return;
   if (rows < 1) rows = 1;
 
+  // Compute start index so the selected row is roughly centered
   uint8_t maxStart = (count > rows) ? (count - rows) : 0;
   uint8_t start = 0;
   if (count > rows) {
@@ -85,37 +87,41 @@ inline void drawMenuPagedP_TitleP(U8G2* u8,
 
   u8->firstPage();
   do {
-    if (titleP) drawTitleWithLines_P(u8, titleP, /*y=*/12, /*gapPx=*/6);
+    if (title) drawTitleWithLines(u8, title, /*y=*/12, /*gapPx=*/6);
 
     u8->setFont(u8g2_font_6x10_tf);
     const int startY = 26;
     const int lineH  = 12;
 
     for (uint8_t row = 0; row < rows && (start + row) < count; ++row) {
-      uint8_t i = (uint8_t)(start + row);
+      uint8_t i = start + row;
       int y = startY + row * lineH;
-
-      const char* p = readPtrP(itemsP, i);
 
       if (i == selected) {
         u8->drawBox(0, y - 10, 128, 12);
         u8->setDrawColor(0);
-        drawProgmemStr(u8, 4, y, p);
+        u8->drawStr(4, y, items[i]);
         u8->setDrawColor(1);
       } else {
-        drawProgmemStr(u8, 4, y, p);
+        u8->drawStr(4, y, items[i]);
       }
     }
 
+    // Integer-only scrollbar (no floats)
     if (count > rows) {
-      const int barX = 125, barTop = 16, barH = 48;
+      const int barX   = 125;
+      const int barTop = 16;
+      const int barH   = 48;
+
       u8->drawVLine(barX, barTop, barH);
 
       int knobH = (rows * barH) / (int)count;
       if (knobH < 6) knobH = 6;
 
-      int maxStartPx = (int)(maxStart ? maxStart : 1);
-      int knobY = barTop + (int)((start * (barH - knobH)) / (float)maxStartPx);
+      int denom = (int)(maxStart ? maxStart : 1);
+      int numer = (int)start * (barH - knobH);
+      int knobY = barTop + (numer / denom);
+
       u8->drawBox(barX - 1, knobY, 3, knobH);
     }
   } while (u8->nextPage());
@@ -124,9 +130,10 @@ inline void drawMenuPagedP_TitleP(U8G2* u8,
 /* --------------------------------
    PROGMEM-backed items version (✨)
    -------------------------------- */
+// Paged menu renderer for PROGMEM item table
 inline void drawMenuPagedP(U8G2* u8,
                            const char* title,
-                           const char* const* itemsP,  // pointer table in PROGMEM
+                           const char* const* itemsP, // table in PROGMEM
                            uint8_t count,
                            uint8_t selected,
                            uint8_t rows = 4)
@@ -152,42 +159,48 @@ inline void drawMenuPagedP(U8G2* u8,
     const int lineH  = 12;
 
     for (uint8_t row = 0; row < rows && (start + row) < count; ++row) {
-      uint8_t i = (uint8_t)(start + row);
+      uint8_t i = start + row;
       int y = startY + row * lineH;
 
-      const char* p = readPtrP(itemsP, i);   // fetch pointer from PROGMEM
+      const char* p = readPtrP(itemsP, i);   // PROGMEM pointer → RAM ptr
 
       if (i == selected) {
         u8->drawBox(0, y - 10, 128, 12);
         u8->setDrawColor(0);
-        drawProgmemStr(u8, 4, y, p);         // copy label from PROGMEM and draw
+        drawProgmemStr(u8, 4, y, p);        // copy label text from PROGMEM
         u8->setDrawColor(1);
       } else {
         drawProgmemStr(u8, 4, y, p);
       }
     }
 
+    // Integer-only scrollbar 
     if (count > rows) {
-      const int barX = 125, barTop = 16, barH = 48;
+      const int barX   = 125;
+      const int barTop = 16;
+      const int barH   = 48;
+
       u8->drawVLine(barX, barTop, barH);
 
       int knobH = (rows * barH) / (int)count;
       if (knobH < 6) knobH = 6;
 
-      int maxStartPx = (int)(maxStart ? maxStart : 1);
-      int knobY = barTop + (int)((start * (barH - knobH)) / (float)maxStartPx);
+      int denom = (int)(maxStart ? maxStart : 1);
+      int numer = (int)start * (barH - knobH);
+      int knobY = barTop + (numer / denom);
+
       u8->drawBox(barX - 1, knobY, 3, knobH);
     }
   } while (u8->nextPage());
 }
 
-// Back-compat: keep old name pointing to the RAM version
-inline void drawMenuPaged(U8G2* u8,
-                          const char* title,
-                          const char* const* items,
-                          uint8_t count,
-                          uint8_t selected,
-                          uint8_t rows = 4)
-{
-  drawMenuPagedP(u8, title, items, count, selected, rows);
-}
+// // Back-compat: keep old name pointing to the RAM version
+// inline void drawMenuPaged(U8G2* u8,
+//                           const char* title,
+//                           const char* const* items,
+//                           uint8_t count,
+//                           uint8_t selected,
+//                           uint8_t rows = 4)
+// {
+//   drawMenuPagedP(u8, title, items, count, selected, rows);
+// }
