@@ -1,78 +1,59 @@
-// menu_save.cpp
-// Save menu context
-
 #include "menu_save.h"
 #include "context_registry.h"
 #include "context_state.h"
 #include <U8g2lib.h>
 #include <avr/pgmspace.h>
+#include "ui_draw.h"
 #include "events.h"
 #include "transitions.h"
-#include "ui_draw.h"
 
-// Back transitions for SAVE_MENU
-static const Transition SAVE_MENU_TRANSITIONS[] = {
-  {"SAVE_MENU", 0, "MAIN_MENU"},
-};
-static const unsigned SAVE_MENU_TRANSITION_COUNT =
-  sizeof(SAVE_MENU_TRANSITIONS)/sizeof(SAVE_MENU_TRANSITIONS[0]);
-
-// ---------- PROGMEM labels ----------
+// ----- PROGMEM labels -----
 const char SV_ITEM_0[] PROGMEM = "Save Pattern";
 const char SV_ITEM_1[] PROGMEM = "Save All";
 const char SV_ITEM_2[] PROGMEM = "Back";
-const char TITLE_SAVE[] PROGMEM = "Save Menu";
-
-// Pointer table also in PROGMEM
 const char* const MENU_SAVE_ITEMS[] PROGMEM = {
-  SV_ITEM_0,
-  SV_ITEM_1,
-  SV_ITEM_2
+  SV_ITEM_0, SV_ITEM_1, SV_ITEM_2
 };
-const uint8_t MENU_SAVE_COUNT = 3;
+
+// ----- PROGMEM destinations -----
+const char* const MENU_SAVE_SUBS[] PROGMEM = {
+  "MAIN_MENU",    // TODO: "SAVE_PATTERN"
+  "MAIN_MENU",    // TODO: "SAVE_ALL"
+  "MAIN_MENU",
+};
+static const uint8_t MENU_SAVE_COUNT =
+  sizeof(MENU_SAVE_ITEMS) / sizeof(MENU_SAVE_ITEMS[0]);
+
+const char TITLE_SAVE[] PROGMEM = "Save Menu";
 
 SaveMenuContext::SaveMenuContext()
   : MenuObject("SAVE_MENU", "MAIN_MENU",
-               /*subs*/ nullptr, /*subCount*/ 0,
-               /*menuItems*/ MENU_SAVE_ITEMS, /*menuItemCount*/ MENU_SAVE_COUNT) {}
+               MENU_SAVE_SUBS, MENU_SAVE_COUNT,
+               MENU_SAVE_ITEMS, MENU_SAVE_COUNT) {}
 
 void SaveMenuContext::draw(void* gfx) {
   U8G2* u8 = (U8G2*)gfx;
-   char titleBuf[24];
-  strncpy_P(titleBuf, TITLE_SAVE, sizeof(titleBuf)-1);
-  titleBuf[sizeof(titleBuf)-1] = '\0';
-
-  // PROGMEM-aware renderer
-  drawMenuPagedP(u8, "Save Menu", items, itemCount, selectedIndex, 4);
+  char t[24]; strncpy_P(t, TITLE_SAVE, sizeof(t)-1); t[sizeof(t)-1] = '\0';
+  drawMenuPagedP(u8, t, items, itemCount, selectedIndex, 4);
 }
 
 void SaveMenuContext::handleInput(int input) {
-  if (input == 1) {                       // select/enter
-    if (selectedIndex == 2) {
-      setContextByName("MAIN_MENU");      // Back
-    } else {
-      // TODO: implement actual save behavior
-      // e.g., savePattern(selectedIndex == 0 ? current : ALL);
+  if (input == 1) {
+    if (subcontextNames && selectedIndex < subcontextCount) {
+      const char* dest = (const char*)pgm_read_ptr(&subcontextNames[selectedIndex]);
+      setContextByName(dest);
     }
-  } else if (input == 2) {                // down
+    return;
+  } else if (input == 2) {
     selectedIndex = (uint8_t)((selectedIndex + 1) % itemCount);
-  } else if (input == 3) {                // up
+  } else if (input == 3) {
     selectedIndex = (uint8_t)((selectedIndex + itemCount - 1) % itemCount);
-  } else if (input == 0) {                // back
+  } else if (input == 0) {
     if (goBack()) return;
-    // Optional fallback:
-    // setContextByName("MAIN_MENU");
   }
 }
+void SaveMenuContext::update(void* /*gfx*/) {}
 
-void SaveMenuContext::update(void* /*gfx*/) {
-  // No periodic work yet.
-}
-
-// --- Global instance + registration ---
 SaveMenuContext saveMenuContext;
-
 __attribute__((constructor))
-void registerSaveMenuContext() {
-  registerContext("SAVE_MENU", &saveMenuContext);
-}
+void registerSaveMenuContext() { registerContext("SAVE_MENU", &saveMenuContext); }

@@ -1,6 +1,3 @@
-// menu_settings.cpp
-// Settings menu context
-
 #include "menu_settings.h"
 #include "context_registry.h"
 #include "context_state.h"
@@ -10,60 +7,55 @@
 #include "events.h"
 #include "transitions.h"
 
-// ---------- PROGMEM labels ----------
+// ----- PROGMEM labels -----
 const char S_ITEM_0[] PROGMEM = "Audio Settings";
 const char S_ITEM_1[] PROGMEM = "Display Options";
 const char S_ITEM_2[] PROGMEM = "MIDI Config";
 const char S_ITEM_3[] PROGMEM = "Back";
-const char TITLE_SETTINGS[] PROGMEM = "Settings";
-
-// Pointer table also in PROGMEM
 const char* const MENU_SETTINGS_ITEMS[] PROGMEM = {
   S_ITEM_0, S_ITEM_1, S_ITEM_2, S_ITEM_3
 };
-const uint8_t MENU_SETTINGS_COUNT = 4;
+
+// ----- PROGMEM destinations -----
+const char* const MENU_SETTINGS_SUBS[] PROGMEM = {
+  "MAIN_MENU",   // TODO: "AUDIO_SETTINGS"
+  "MAIN_MENU",   // TODO: "DISPLAY_OPTIONS"
+  "MAIN_MENU",   // TODO: "MIDI_CONFIG"
+  "MAIN_MENU",
+};
+static const uint8_t MENU_SETTINGS_COUNT =
+  sizeof(MENU_SETTINGS_ITEMS) / sizeof(MENU_SETTINGS_ITEMS[0]);
+
+const char TITLE_SETTINGS[] PROGMEM = "Settings";
 
 SettingsMenuContext::SettingsMenuContext()
   : MenuObject("SETTINGS", "MAIN_MENU",
-               /*subs*/ nullptr, /*subCount*/ 0,
-               /*menuItems*/ MENU_SETTINGS_ITEMS, /*menuItemCount*/ MENU_SETTINGS_COUNT) {}
+               MENU_SETTINGS_SUBS, MENU_SETTINGS_COUNT,
+               MENU_SETTINGS_ITEMS, MENU_SETTINGS_COUNT) {}
 
 void SettingsMenuContext::draw(void* gfx) {
   U8G2* u8 = (U8G2*)gfx;
-  char titleBuf[24];
-  strncpy_P(titleBuf, TITLE_SETTINGS, sizeof(titleBuf)-1);
-  titleBuf[sizeof(titleBuf)-1] = '\0'; 
-  // PROGMEM-aware renderer
-  drawMenuPagedP(u8, "Settings", items, itemCount, selectedIndex, 4);
-}
-
-void SettingsMenuContext::update(void* /*gfx*/) {
-  // No periodic work yet.
+  char t[24]; strncpy_P(t, TITLE_SETTINGS, sizeof(t)-1); t[sizeof(t)-1] = '\0';
+  drawMenuPagedP(u8, t, items, itemCount, selectedIndex, 4);
 }
 
 void SettingsMenuContext::handleInput(int input) {
-  if (input == 1) {                       // select/enter
-    if (selectedIndex == 3) {
-      setContextByName("MAIN_MENU");      // "Back"
-    } else {
-      // TODO: jump to sub-menus (e.g., AUDIO_SETTINGS / DISPLAY_OPTIONS / MIDI_CONFIG)
-      // setContextByName("AUDIO_SETTINGS");
+  if (input == 1) {
+    if (subcontextNames && selectedIndex < subcontextCount) {
+      const char* dest = (const char*)pgm_read_ptr(&subcontextNames[selectedIndex]);
+      setContextByName(dest);
     }
-  } else if (input == 2) {                // down
+    return;
+  } else if (input == 2) {
     selectedIndex = (uint8_t)((selectedIndex + 1) % itemCount);
-  } else if (input == 3) {                // up
+  } else if (input == 3) {
     selectedIndex = (uint8_t)((selectedIndex + itemCount - 1) % itemCount);
-  } else if (input == 0) {                // back
+  } else if (input == 0) {
     if (goBack()) return;
-    // Optional fallback:
-    // setContextByName("MAIN_MENU");
   }
 }
+void SettingsMenuContext::update(void* /*gfx*/) {}
 
-// --- Global instance + registration ---
 SettingsMenuContext settingsMenuContext;
-
 __attribute__((constructor))
-void registerSettingsMenuContext() {
-  registerContext("SETTINGS", &settingsMenuContext);
-}
+void registerSettingsMenuContext() { registerContext("SETTINGS", &settingsMenuContext); }

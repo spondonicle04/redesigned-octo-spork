@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <limits.h>  // for UINTPTR_MAX in guarded asserts
+#include <avr/pgmspace.h> // for PROGMEM reading
 
 //-----------------------------------
 // 🧱 Base Object
@@ -18,6 +19,9 @@ public:
   BaseObject(const char* n) : name(n) {}
   virtual ~BaseObject() {}
 };
+// external navigation helpers – implemented elsewhere
+  extern bool goBack();
+  extern void setContextByName(const char* name);
 
 //-----------------------------------
 // 🖥️ Context Object
